@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+  </body>
+  <script id="vertex-shader-2d" type="notjs">
+    // 속성은 버퍼에서 데이터를 받습니다.
+    attribute vec4 a_position;
+
+    // 모든 셰이더는 main 함수를 가집니다.
+    void main() {
+
+      // gl_Position은 정점 셰이더가 설정을 담당하는 특수 변수
+      gl_Position = a_position;
+    }
+   
+  </script>
+   
+  <script id="fragment-shader-2d" type="notjs">
+    // 프래그먼트 셰이더는 기본 정밀도를 가지고 있지 않으므로 하나를 선택해야 합니다.
+    // mediump은 좋은 기본값으로 "중간 정밀도"를 의미합니다.
+    precision mediump float;
+
+    void main() {
+      // gl_FragColor는 프래그먼트 셰이더가 설정을 담당하는 특수 변수
+      gl_FragColor = vec4(1, 0, 0.5, 1); // 자주색 반환
+    }
+  </script>
+  <script src="./utills.js"></script>
+</html>
