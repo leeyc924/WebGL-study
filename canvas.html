@@ -9,27 +9,33 @@
     <canvas id="canvas"></canvas>
   </body>
   <script id="vertex-shader-2d" type="notjs">
-    // 속성은 버퍼에서 데이터를 받습니다.
-    attribute vec4 a_position;
+    attribute vec2 a_position;
 
-    // 모든 셰이더는 main 함수를 가집니다.
+    uniform vec2 u_resolution;
+    
     void main() {
-
-      // gl_Position은 정점 셰이더가 설정을 담당하는 특수 변수
-      gl_Position = a_position;
+       // convert the rectangle from pixels to 0.0 to 1.0
+       vec2 zeroToOne = a_position / u_resolution;
+    
+       // convert from 0->1 to 0->2
+       vec2 zeroToTwo = zeroToOne * 2.0;
+    
+       // convert from 0->2 to -1->+1 (clipspace)
+       vec2 clipSpace = zeroToTwo - 1.0;
+    
+       gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
     }
-   
   </script>
    
   <script id="fragment-shader-2d" type="notjs">
-    // 프래그먼트 셰이더는 기본 정밀도를 가지고 있지 않으므로 하나를 선택해야 합니다.
-    // mediump은 좋은 기본값으로 "중간 정밀도"를 의미합니다.
     precision mediump float;
 
+    uniform vec4 u_color;
+    
     void main() {
-      // gl_FragColor는 프래그먼트 셰이더가 설정을 담당하는 특수 변수
-      gl_FragColor = vec4(1, 0, 0.5, 1); // 자주색 반환
+       gl_FragColor = u_color;
     }
   </script>
+  <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
   <script src="./utills.js"></script>
 </html>

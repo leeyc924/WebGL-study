@@ -1,66 +1,54 @@
-function createProgram(gl, vertexShader, fragmentShader) {
-  const program = gl.createProgram();
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
- 
-  const success = gl.getProgramParameter(program, gl.LINK_STATUS);
-  if (success) {
-    return program;
-  }
-
-  gl.deleteProgram(program);
+// Returns a random integer from 0 to range - 1.
+function randomInt(range) {
+  return Math.floor(Math.random() * range);
 }
 
-function createShader(gl, type, source) {
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
- 
-  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-  if (success) {
-    return shader;
-  }
- 
-  console.log(gl.getShaderInfoLog(shader));
-  gl.deleteShader(shader);
+// Fill the buffer with the values that define a rectangle.
+function setRectangle(gl, x, y, width, height) {
+  const x1 = x;
+  const x2 = x + width;
+  const y1 = y;
+  const y2 = y + height;
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+     x1, y1,
+     x2, y1,
+     x1, y2,
+     x1, y2,
+     x2, y1,
+     x2, y2,
+  ]), gl.STATIC_DRAW);
 }
 
 function main() {
-  const canvas = document.getElementById('canvas');
-  const gl = canvas.getContext('webgl');
+  const canvas = document.getElementById("canvas");
+  const gl = canvas.getContext("webgl");
 
   if (!gl) {
     return;
   }
-  // Get the strings for our GLSL shaders
-  const vertexShaderSource = document.querySelector("#vertex-shader-2d").text;
-  const fragmentShaderSource = document.querySelector("#fragment-shader-2d").text;
-
-  // create GLSL shaders, upload the GLSL source, compile the shaders
-  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
   // Link the two shaders into a program
-  const program = createProgram(gl, vertexShader, fragmentShader);
+  const program = webglUtils.createProgramFromScripts(gl, [
+    "vertex-shader-2d",
+    "fragment-shader-2d",
+  ]);
 
   // look up where the vertex data needs to go.
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 
-  // Create a buffer and put three 2d clip space points in it
+  // look up uniform locations
+  const resolutionUniformLocation = gl.getUniformLocation(
+    program,
+    "u_resolution"
+  );
+  const colorUniformLocation = gl.getUniformLocation(program, "u_color");
+
+  // Create a buffer to put three 2d clip space points in
   const positionBuffer = gl.createBuffer();
+
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  const positions = [
-    0, 0,
-    0, 0.5,
-    0.7, 0,
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-  // code above this line is initialization code.
-  // code below this line is rendering code.
-  // webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+  webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
   // Tell WebGL how to convert from clip space to pixels
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -79,17 +67,52 @@ function main() {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-  const size = 2;          // 2 components per iteration
-  const type = gl.FLOAT;   // the data is 32bit floats
+  const size = 2; // 2 components per iteration
+  const type = gl.FLOAT; // the data is 32bit floats
   const normalize = false; // don't normalize the data
-  const stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-  const offset = 0;        // start at the beginning of the buffer
-  gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+  const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+  const pOffset = 0; // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+    positionAttributeLocation,
+    size,
+    type,
+    normalize,
+    stride,
+    pOffset
+  );
 
-  // draw
-  const primitiveType = gl.TRIANGLES;
-  const count = 3;
-  gl.drawArrays(primitiveType, offset, count);
+  // set the resolution
+  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+
+  // draw 50 random rectangles in random colors
+  for (let i = 0; i < 50; ++i) {
+    // Setup a random rectangle
+    // This will write to positionBuffer because
+    // its the last thing we bound on the ARRAY_BUFFER
+    // bind point
+    setRectangle(
+      gl,
+      randomInt(300),
+      randomInt(300),
+      randomInt(300),
+      randomInt(300)
+    );
+
+    // Set a random color.
+    gl.uniform4f(
+      colorUniformLocation,
+      Math.random(),
+      Math.random(),
+      Math.random(),
+      1
+    );
+
+    // Draw the rectangle.
+    var primitiveType = gl.TRIANGLES;
+    var offset = 0;
+    var count = 6;
+    gl.drawArrays(primitiveType, offset, count);
+  }
 }
 
 main();
