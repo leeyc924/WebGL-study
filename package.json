@@ -1,0 +1,25 @@
+{
+  "name": "WebGL-study",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/leeyc924/WebGL-study.git",
+  "author": "leeyc924 <leeyc924@naver.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack serve --open",
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "babel-loader": "^9.1.3",
+    "eslint": "^8.47.0",
+    "html-webpack-plugin": "^5.5.3",
+    "prettier": "^3.0.2",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
